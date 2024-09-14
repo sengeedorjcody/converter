@@ -14,8 +14,7 @@ from docx.shared import RGBColor
 from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from django.views.decorators.csrf import csrf_protect
-from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 PAGE_WIDTH_INCHES = 8.5
 
@@ -826,6 +825,7 @@ def change_request(request):
         form = ChangeRequestFileForm()
     return render(request, 'fileconverter/change_request.html', {'form': form})
 
+@csrf_exempt
 def name_request(request):
     if request.method == 'POST':
         form = ChangeRequestFileForm(request.POST, request.FILES)
