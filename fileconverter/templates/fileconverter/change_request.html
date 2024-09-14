@@ -1,0 +1,7 @@
+{% extends 'base.html' %} {% block content %}
+<h1 class="text-center">Нэрийн жагсаатаас нэр өөрчилөх хүсэлт үүсгэх</h1>
+<form method="post" enctype="multipart/form-data" class="mt-4">
+  {% csrf_token %} {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Convert</button>
+</form>
+{% endblock %}
