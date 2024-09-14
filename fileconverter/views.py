@@ -14,6 +14,8 @@ from docx.shared import RGBColor
 from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from django.views.decorators.csrf import csrf_protect
+from django.utils.decorators import method_decorator
 
 PAGE_WIDTH_INCHES = 8.5
 

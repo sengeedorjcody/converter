@@ -1,7 +1,7 @@
 {% extends 'base.html' %} {% block content %}
 <h1 class="text-center">Нэрийн жагсаалтийг хувийн хэрэг болгох</h1>
 <form method="post" enctype="multipart/form-data" class="mt-4">
-  {% csrf_token %} {% csrf_protect %} {{ form.as_p }}
+  {% csrf_token %} {{ form.as_p }}
   <button type="submit" class="btn btn-primary">Convert</button>
 </form>
 {% endblock %}

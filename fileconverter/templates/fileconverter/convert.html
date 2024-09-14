@@ -6,7 +6,7 @@
   <body>
     <h2>Upload Excel File</h2>
     <form method="post" enctype="multipart/form-data">
-      {% csrf_token %} {% csrf_protect %}
+      {% csrf_token %}
       <input type="file" name="excel_file" required />
       <button type="submit">Convert to Word</button>
     </form>
