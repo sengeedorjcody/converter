@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Upload Excel</title>
-</head>
-<body>
+  </head>
+  <body>
     <h2>Upload Excel File</h2>
     <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="file" name="excel_file" required>
-        <button type="submit">Convert to Word</button>
+      {% csrf_token %} {% csrf_protect %}
+      <input type="file" name="excel_file" required />
+      <button type="submit">Convert to Word</button>
     </form>
-</body>
+  </body>
 </html>
