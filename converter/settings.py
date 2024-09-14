@@ -141,3 +141,4 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
+DEBUG = False
