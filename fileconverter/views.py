@@ -797,6 +797,7 @@ def handle_name_request_file(f):
 def home(request):
     return render(request, 'base.html')
 
+@csrf_exempt
 def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
@@ -811,6 +812,7 @@ def upload_file(request):
         form = UploadFileForm()
     return render(request, 'fileconverter/upload.html', {'form': form})
 
+@csrf_exempt
 def change_request(request):
     if request.method == 'POST':
         form = ChangeRequestFileForm(request.POST, request.FILES)
