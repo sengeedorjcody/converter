@@ -1,15 +1,11 @@
 from .forms import UploadFileForm
 from .forms import ChangeRequestFileForm
 import openpyxl
-from docx.shared import Cm, Inches
-#
+from docx.shared import Cm
 from django.shortcuts import render
 from django.http import HttpResponse
-from openpyxl import load_workbook
 from docx import Document
 from docx.shared import RGBColor
-from docx.oxml import parse_xml
-from docx.oxml.ns import nsdecls
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from django.views.decorators.csrf import csrf_exempt
 
@@ -49,7 +45,7 @@ def handle_uploaded_file(f):
         "second": ""
     },
     {
-        "first": "Газар зүйн нэрийн орших 1:25 000-ны масштабтай байр зүйн зургийн нэрлэвэр",
+        "first": "Газар зүйн нэрийн орших 1:100 000-ны масштабтай байр зүйн зургийн нэрлэвэр",
         "second": ""
     },
     {
@@ -120,6 +116,11 @@ def handle_uploaded_file(f):
             elif i == 1:
                 row_cells[4].text = (str(row[10]) if row[10] is not None else '')
                 table.cell(i, 4).merge(table.cell(i, 9))
+            elif i == 3:
+                name = str(row[2]) if row[2] is not None else ''
+                name_type = name.split()[-1]
+                row_cells[4].text = name_type
+                table.cell(i, 4).merge(table.cell(i, 9))
             elif i == 4:
                 row_cells[4].text = (str(row[9]) if row[9] is not None else '')
                 table.cell(i, 4).merge(table.cell(i, 9))
@@ -147,7 +148,7 @@ def handle_uploaded_file(f):
                 table.cell(i, 4).merge(table.cell(i, 6))
                 table.cell(i, 7).merge(table.cell(i, 9))
             elif i == 9:
-                row_cells[4].text = 'Үзүүлсэн'
+                row_cells[4].text = 'Үзүүлэгдээгүй'
                 row_cells[7].text = "Үзүүлсэн"
                 table.cell(i, 4).merge(table.cell(i, 6))
                 table.cell(i, 7).merge(table.cell(i, 9))
@@ -542,34 +543,3 @@ def name_request(request):
         form = ChangeRequestFileForm()
     return render(request, 'fileconverter/name_request.html', {'form': form})
 
-def excel_to_word_view(request):
-    if request.method == 'POST' and request.FILES['excel_file']:
-        excel_file = request.FILES['excel_file']
-        wb = load_workbook(excel_file)
-        sheet = wb.active
-
-        document = Document()
-
-        # Iterate through Excel rows and convert each to a table
-        for row in sheet.iter_rows(min_row=2):  # assuming the first row is the header
-            table = document.add_table(rows=1, cols=len(row))
-            hdr_cells = table.rows[0].cells
-            for i, cell in enumerate(row):
-                hdr_cells[i].text = str(cell.value) if cell.value else ''
-
-                # Apply color if the cell has a fill color
-                if cell.fill.start_color.index != '00000000':  # Not default color
-                    # hex_color = cell.fill.start_color.rgb[2:]  # Get hex value
-                    hex_color = '000'
-                    shading_elm_1 = hdr_cells[i]._element
-                    shading_elm_1.get_or_add_tcPr().append(
-                        parse_xml(r'<w:shd {} w:fill="{}"/>'.format(nsdecls('w'), hex_color))
-                    )
-
-        # Save the document
-        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-        response['Content-Disposition'] = 'attachment; filename=converted.docx'
-        document.save(response)
-        return response
-
-    return render(request, 'fileconverter/convert.html')
