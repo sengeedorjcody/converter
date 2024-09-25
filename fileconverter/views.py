@@ -89,11 +89,9 @@ def handle_uploaded_file(f):
         "second": "/2024 оны 05-р сарын 15-ны өдөр/"
     }]
 
-    # for row in ws.iter_rows(min_row=3, values_only=True):
-    for i, row in enumerate(ws.iter_rows(min_row=3, values_only=True)):
-        print(row)  # Process each row as needed
-        if i >= 2:
-            break
+    for index, row in enumerate(ws.iter_rows(min_row=3, values_only=True)):
+        # if index >= 2:
+        #     break
         title = doc.add_paragraph('')
         run = title.add_run('Газар зүйн нэрийн хувийн хэрэг')
         run.bold = True
