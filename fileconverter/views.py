@@ -30,7 +30,7 @@ def handle_uploaded_file(f):
     },
     {
         "first": "Газар зүйн нэрийн төрөл /дэвсгэр нэр/",
-        "second": "худаг"
+        "second": ""
     },
     {
         "first": "Харьяалагдах аймаг, сум, баг",
@@ -38,7 +38,7 @@ def handle_uploaded_file(f):
     },
     {
         "first": "Газар зүйн нэрийн ерөнхий байрлал, тайлбар",
-        "second": "Сумын төвөөс хойшоо 27.51 км"
+        "second": ""
     },
     {
         "first": "Газар зүйн нэрийн солбицол, UTM, 48-р бүс",
@@ -89,8 +89,11 @@ def handle_uploaded_file(f):
         "second": "/2024 оны 05-р сарын 15-ны өдөр/"
     }]
 
-    for row in ws.iter_rows(min_row=3, values_only=True):
-        # doc.add_heading('', 0)
+    # for row in ws.iter_rows(min_row=3, values_only=True):
+    for i, row in enumerate(ws.iter_rows(min_row=3, values_only=True)):
+        print(row)  # Process each row as needed
+        if i >= 2:
+            break
         title = doc.add_paragraph('')
         run = title.add_run('Газар зүйн нэрийн хувийн хэрэг')
         run.bold = True
@@ -109,20 +112,21 @@ def handle_uploaded_file(f):
                 if i == 8:
                     horizontal.merge(table.cell(i+1, 3))
             if i == 0:
-                row_cells[4].text = (str(row[2]) if row[2] is not None else '')
-                row_cells[7].text = str(row[5]) if row[5] is not None else ''
+                row_cells[4].text = (str(row[3]) if row[3] is not None else '')
+                row_cells[7].text = str(row[4]) if row[4] is not None else ''
                 table.cell(i, 4).merge(table.cell(i, 6))
                 table.cell(i, 7).merge(table.cell(i, 9))
             elif i == 1:
-                row_cells[4].text = (str(row[10]) if row[10] is not None else '')
+                row_cells[4].text = (str(row[1]) if row[1] is not None else '')
+                table.cell(i, 4).merge(table.cell(i, 9))
+            elif i == 2:
+                row_cells[4].text = (str(row[13]) if row[13] is not None else '')
                 table.cell(i, 4).merge(table.cell(i, 9))
             elif i == 3:
-                name = str(row[2]) if row[2] is not None else ''
-                name_type = name.split()[-1]
-                row_cells[4].text = name_type
+                row_cells[4].text = str(row[5]) if row[5] is not None else ''
                 table.cell(i, 4).merge(table.cell(i, 9))
             elif i == 4:
-                row_cells[4].text = (str(row[9]) if row[9] is not None else '')
+                row_cells[4].text = (str(row[12]) if row[12] is not None else '')
                 table.cell(i, 4).merge(table.cell(i, 9))
             elif i == 6:
                 longitude1 = "1.Өргөрөг: " + ("" if not row[14] else str(row[14]))
@@ -136,11 +140,11 @@ def handle_uploaded_file(f):
                 row_cells[4].text = coordinate
                 table.cell(i, 4).merge(table.cell(i, 9))
             elif i == 7:
-                row_cells[4].text = str(row[4]) if row[4] is not None else ''
+                row_cells[4].text = str(row[2]) if row[2] is not None else ''
                 table.cell(i, 4).merge(table.cell(i, 5))
                 row_cells[6].text = "Нэрийн зургийн индекс"
                 table.cell(i, 6).merge(table.cell(i, 7))
-                row_cells[8].text = str(row[3]) if row[3] is not None else ''
+                row_cells[8].text = str(row[10]) if row[10] is not None else ''
                 table.cell(i, 8).merge(table.cell(i, 9))
             elif i == 8:
                 row_cells[4].text = '1:25000 зурагт'
@@ -149,7 +153,7 @@ def handle_uploaded_file(f):
                 table.cell(i, 7).merge(table.cell(i, 9))
             elif i == 9:
                 row_cells[4].text = 'Үзүүлэгдээгүй'
-                row_cells[7].text = "Үзүүлсэн"
+                row_cells[7].text = str(row[9]) if row[9] is not None else ''
                 table.cell(i, 4).merge(table.cell(i, 6))
                 table.cell(i, 7).merge(table.cell(i, 9))
             elif i == 10:
