@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "excel-converter/wsgi.py",
+      "src": "manage.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "excel-converter/manage.py"
+      "dest": "/manage.py"
     }
   ]
 }
