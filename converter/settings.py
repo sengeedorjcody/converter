@@ -34,6 +34,7 @@ ALLOWED_HOSTS = ['.vercel.app',
                  'https://converter-production-ee91.up.railway.app/name_request/',
                  '*.vercel.app',
                  '*',
+                 'https://excel-converter-g49l.vercel.app/',
                  ]
 
 
