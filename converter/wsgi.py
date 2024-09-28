@@ -16,3 +16,5 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'converter.settings')
 application = get_wsgi_application()
 
 app = application
+
+handler = application
