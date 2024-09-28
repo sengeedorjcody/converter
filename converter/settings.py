@@ -31,7 +31,9 @@ ALLOWED_HOSTS = ['.vercel.app',
                  '.railway.app', 
                  '127.0.0.1',
                  'https://converter-production-ee91.up.railway.app',
-                 'https://converter-production-ee91.up.railway.app/name_request/'
+                 'https://converter-production-ee91.up.railway.app/name_request/',
+                 '*.vercel.app',
+                 '*',
                  ]
 
 

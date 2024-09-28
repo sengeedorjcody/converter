@@ -45,7 +45,7 @@ def handle_uploaded_file(f):
         "second": ""
     },
     {
-        "first": "Газар зүйн нэрийн орших 1:100 000-ны масштабтай байр зүйн зургийн нэрлэвэр",
+        "first": "Газар зүйн нэрийн орших 1:25 000-ны масштабтай байр зүйн зургийн нэрлэвэр",
         "second": ""
     },
     {
@@ -138,11 +138,11 @@ def handle_uploaded_file(f):
                 row_cells[4].text = coordinate
                 table.cell(i, 4).merge(table.cell(i, 9))
             elif i == 7:
-                row_cells[4].text = str(row[2]) if row[2] is not None else ''
+                # row_cells[4].text = str(row[10]) if row[10] is not None else ''
                 table.cell(i, 4).merge(table.cell(i, 5))
                 row_cells[6].text = "Нэрийн зургийн индекс"
                 table.cell(i, 6).merge(table.cell(i, 7))
-                row_cells[8].text = str(row[10]) if row[10] is not None else ''
+                row_cells[8].text = str(row[2]) if row[2] is not None else ''
                 table.cell(i, 8).merge(table.cell(i, 9))
             elif i == 8:
                 row_cells[4].text = '1:25000 зурагт'
@@ -483,9 +483,19 @@ def handle_name_request_file(f):
                 table.cell(i, 1).merge(table.cell(i, 5)) 
             
             if i == 7:
-                row_cells[6].text = "Өргөрөг: " + (str(row[15]) if str(row[15]) is not None else "") + "\n" + "Уртраг: " + (str(row[16]) if str(row[16]) is not None else "")
+                longitude1 = "1.Өргөрөг: " + ("" if not row[13] else str(row[13]))
+                latitude1 = "\nУртраг: " + ("" if not row[14] else str(row[14]))
+
+                longitude2 = "\n2.Өргөрөг: " + ("" if not row[15] else str(row[15]))
+                latitude2 = "\nУртраг: " + ("" if not row[16] else str(row[16]))
+                coordinate = longitude1 + latitude1
+                if row[15]:
+                    coordinate = coordinate + longitude2 + latitude2
+                row_cells[6].text = coordinate
             elif i == 1:
-                row_cells[6].text = (str(row[2]) if str(row[2]) is not None else "")
+                row_cells[6].text = (str(row[3]) if str(row[3]) is not None else "")
+            elif i == 2:
+                row_cells[6].text = (str(row[5]) if str(row[5]) is not None else "")
             else:
                 row_cells[6].text = str(static_value.get("second", ""))
             table.cell(i, 6).merge(table.cell(i, 14))
