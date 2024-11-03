@@ -139,7 +139,7 @@ def handle_uploaded_file(f):
                 row_cells[4].text = coordinate
                 table.cell(i, 4).merge(table.cell(i, 9))
             elif i == 7:
-                # row_cells[4].text = str(row[10]) if row[10] is not None else ''
+                row_cells[4].text = str(row[9]) if row[9] is not None else ''
                 table.cell(i, 4).merge(table.cell(i, 5))
                 row_cells[6].text = "Нэрийн зургийн индекс"
                 table.cell(i, 6).merge(table.cell(i, 7))
@@ -151,7 +151,6 @@ def handle_uploaded_file(f):
                 table.cell(i, 4).merge(table.cell(i, 6))
                 table.cell(i, 7).merge(table.cell(i, 9))
             elif i == 9:
-                row_cells[4].text = ''
                 row_cells[7].text = str(row[10]) if row[10] is not None else ''
                 table.cell(i, 4).merge(table.cell(i, 6))
                 table.cell(i, 7).merge(table.cell(i, 9))
@@ -175,177 +174,7 @@ def handle_uploaded_file(f):
         doc.add_page_break()
 
     # Save the Word document to a temporary location
-    doc_path = 'output.docx'
-    doc.save(doc_path)
-    return doc_path
-
-def handle_change_request_file(f):
-    wb = openpyxl.load_workbook(f)
-    ws = wb.active
-    doc = Document()
-
-    change_request_values = [
-        {
-            "id": "1.",
-            "first": "Хүсэлт /өргөдөл/ гаргагчийн мэдээлэл /Иргэн, Аж ахуйн нэгж, Төрийн байгууллага, Төрийн бус байгууллага болон бусад/",
-            "second": "Овог, нэр: \nРД: \nОршин суугаа хаяг: \nУтас: \nФакс: \n\nИ-мэйл: \nГарын үсэг:\nХавсралт баримтын хуудасны тоо: _______\nОгноо: _______________"
-        },
-        {
-            "id": "2.",
-            "first": "Батлагдсан газар зүйн нэр",
-            "second": "",
-            "third": "оноосон нэр",
-            "fourth": "дэвсгэр нэр"
-        },
-        {
-            "id": "2.",
-            "first": "Батлагдсан газар зүйн нэр",
-            "second": "",
-            "third": "оноосон нэр",
-            "fourth": "дэвсгэр нэр"
-        },
-        {
-            "id": "3.",
-            "first": "Батлагдсан огноо:",
-            "second": "2003 оны 10 дугаар сарын 31-ний өдөр",
-        },
-        {
-            "id": "4.",
-            "first": "Батлагдсан тогтоол, шийдвэрийн дугаар",
-            "second": "42 дугаар тогтоол",
-        },
-        {
-            "id": "5.",
-            "first": "Баталсан этгээдийн нэр",
-            "second": "Улсын Их Хурал",
-        },
-        {
-            "id": "6.",
-            "first": "Батлагдсан газар зүйн нэрийн байршил",
-            "second": "○ ЗЗНДН-ийн доторх байрлал\n○ Хилийн зааг",
-        },
-        {
-            "id": "7.",
-            "first": "Газар зүйн нэрийг өөрчилж буй шалтгаан /тайлбар бичих/",
-            "second": "○ Монгол хэлнээс өөр хэл дээр батлагдсан\n○ Үг, үсгийн алдаатай батлагдсан\n○ Адил төрлийн хэд хэдэн объектын ижил нэр нь зам, тээвэр, харилцаа холбоо, бусад байгууллагын ажилд хүндрэл учруулахаар байвал\n○ уугуул иргэд нь нэрлэж заншсан уламжлалт нэрийг сэргээх хүсэлт тавьсан\n○ тухайн объектын мөн чанарт тохирохгүй, этгээд хэллэгээр нэрлэгдсэн байвал",
-        },
-        {
-            "id": "8.",
-            "first": "Санал болгож буй нэр",
-            "second": "",
-            "third": "1 дэх нэр",
-            "fourth": "2 дахь нэр"
-        },
-        {
-            "id": "8.",
-            "first": "Санал болгож буй нэр",
-            "second": "",
-            "third": "1 дэх нэр",
-            "fourth": "2 дахь нэр"
-        },
-        {
-            "id": "9.",
-            "first": "Нэрний гарал үүсэл, утга, хэл, ямар нэрнээс үүсэлтэй талаарх тэмдэглэл",
-            "second": "",
-        },
-        {
-            "id": "10.",
-            "first": "Аймаг, нийслэл, сум, дүүрэг, баг, хорооны нэр, дугаар.",
-            "second": "1.Сумын ГЗНСЗ-ийн хурлын шийдвэр\n2.Сумын ИТХ-ын тогтоол\n3.Аймгийн ГЗНСЗ-ийн хурлын шийдвэр\n4.Аймгийн ИТХ-ын тогтоол\n5.ГЗБГЗЗГ-ын ГЗНЗ-ийн хурлын шийдвэр\n6.Газар зүйн нэрийн Үндэсний зөвлөлийн зөвлөмж\n7.Засгийн газар\n8.Үндэсний аюулгүй байдлын зөвлөл\n9.Улсын Их Хурлын тогтоол",
-        },
-        {
-            "id": "11.",
-            "first": "Хамгийн ойр орших хот, суурин газраас алслагдах зай /ямар чиглэлд, ямар зайнд/. 1:100000-ны масштабтай байр зүйн зургийн нэршил",
-            "second": ""
-        },
-        {
-            "id": "12.",
-            "first": "Газар зүйн нэрийн солбицол /градус, минут, секунд/.",
-            "second": "",
-            "description": "/Газар зүйн нэрийн зураг болон сумын бүдүүвч зураг дээр харагдах байдал/"
-        },
-        {
-            "id": "13.",
-            "first": "Нэрийн талаар мэдээллээр хангагч иргэн, хуулийн этгээдийн мэдээлэл",
-            "second": "Овог, нэр:\nРегистрийн дугаар: \nХаяг: \nУтас: \nИ-мэйл:",
-        },
-        {
-            "id": "14.",
-            "first": "Эрх бүхий байгууллага болон орон нутгийн зөвлөлийн зөвлөмж",
-            "second": "1.Аймаг, нийслэл, сум, дүүргийн ЗДТГ",
-        },
-        {
-            "id": "15.",
-            "first": "Гэрэл зураг /зураг дарсан зүг, чиг/",
-            "description": "Тайлбар: 1-8 ширхэг гэрэл зураг \nоруулах /зураг дарсан зүг, чиг \nбичих/;\n/Жишээ нь: \nЗүүн зүгээс эсвэл Зүүн урд зүгээс гэх мэтээр \nбичнэ/.",
-        },
-        {
-            "id": "15.",
-            "first": "Гэрэл зураг /зураг дарсан зүг, чиг/",
-            "description": "Тайлбар: 1-8 ширхэг гэрэл зураг \nоруулах /зураг дарсан зүг, чиг \nбичих/;\n/Жишээ нь: \nЗүүн зүгээс эсвэл Зүүн урд зүгээс гэх мэтээр \nбичнэ/.",
-        },
-        {
-            "id": "16.",
-            "first": "Байршлын зураг",
-            "description": "/Газар зүйн нэрийн зураг болон сумын схем зураг дээрх харагдах байдал/",
-        },
-        {
-            "id": "16.",
-            "first": "Байршлын зураг",
-            "description": "/Газар зүйн нэрийн зураг болон сумын схем зураг дээрх харагдах байдал/",
-        },
-    ]
-    for row in ws.iter_rows(min_row=3, values_only=True):
-        top_right_paragraph = doc.add_paragraph('Хавсралт 2')
-        top_right_paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        run = top_right_paragraph.runs[0]
-
-        title = doc.add_paragraph('')
-        run = title.add_run('Газар зүйн нэрийг өөрчлөх хүсэлтийн маягт /өргөдөл/')
-        run.bold = True
-        title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-        top_right_paragraph = doc.add_paragraph('Зөвхөн албан хэрэгцээнд:')
-        top_right_paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        run = top_right_paragraph.runs[0]
-        
-
-        table = doc.add_table(rows=20, cols=15)
-        table.style = 'Table Grid'
-        table.autofit = False
-        total_width_cm = 20
-        table.columns[0].width = Cm(total_width_cm * 0.4)
-        for i, static_value in enumerate(change_request_values):
-            row_cells = table.rows[i].cells
-            row_cells[0].text = str(static_value.get("id", ""))
-            row_cells[1].text = str(static_value.get("first", ""))
-            if i == 1 or i == 8:
-                horizontal = table.cell(i, 1).merge(table.cell(i, 3))
-                horizontal.merge(table.cell(i+1, 3))
-                table.cell(i, 0).merge(table.cell(i+1, 0))
-                row_cells[4].text = str(static_value.get("third", ""))
-                table.cell(i, 4).merge(table.cell(i, 5))
-                table.cell(i + 1 , 4).merge(table.cell(i+1, 5))
-            elif i == 2 or i == 9:
-                row_cells[4].text = str(static_value.get("fourth", ""))
-            elif i == 16 or i == 18:
-                table.cell(i, 0).merge(table.cell(i+1, 0))
-                table.cell(i, 1).merge(table.cell(i, 14))
-                row_cells[1].text = str(static_value.get("first", ""))
-            elif i == 17 or i == 19:
-                table.cell(i, 1).merge(table.cell(i, 14))
-                row_cells[1].text = str(static_value.get("description", ""))
-            else:
-                table.cell(i, 1).merge(table.cell(i, 5)) 
-            
-            row_cells[6].text = str(static_value.get("second", ""))
-            table.cell(i, 6).merge(table.cell(i, 14))
-
-        doc.add_page_break()
-
-
-    # Save the Word document to a temporary location
-    doc_path = 'Хувийн хэрэг.docx'
+    doc_path = 'Huviin_hereg.docx'
     doc.save(doc_path)
     return doc_path
 
@@ -485,19 +314,23 @@ def handle_name_request_file(f):
                 table.cell(i, 1).merge(table.cell(i, 5)) 
             
             if i == 7:
-                longitude1 = "1.Өргөрөг: " + ("" if not row[13] else str(row[13]))
-                latitude1 = "\nУртраг: " + ("" if not row[14] else str(row[14]))
+                longitude1 = "1.Өргөрөг: " + ("" if not row[14] else str(row[14]))
+                latitude1 = "\nУртраг: " + ("" if not row[15] else str(row[15]))
 
-                longitude2 = "\n2.Өргөрөг: " + ("" if not row[15] else str(row[15]))
-                latitude2 = "\nУртраг: " + ("" if not row[16] else str(row[16]))
+                longitude2 = "\n2.Өргөрөг: " + ("" if not row[16] else str(row[16]))
+                latitude2 = "\nУртраг: " + ("" if not row[17] else str(row[17]))
                 coordinate = longitude1 + latitude1
-                if row[15]:
+                if row[16]:
                     coordinate = coordinate + longitude2 + latitude2
                 row_cells[6].text = coordinate
             elif i == 1:
                 row_cells[6].text = (str(row[3]) if str(row[3]) is not None else "")
             elif i == 2:
                 row_cells[6].text = (str(row[5]) if str(row[5]) is not None else "")
+            elif i == 5:
+                row_cells[6].text = str(row[18]) if row[18] is not None else ''
+            elif i == 6:
+                row_cells[6].text = str(row[19]) if row[19] is not None else ''
             else:
                 row_cells[6].text = str(static_value.get("second", ""))
             table.cell(i, 6).merge(table.cell(i, 14))
@@ -505,7 +338,7 @@ def handle_name_request_file(f):
         doc.add_page_break()
 
     # Save the Word document to a temporary location
-    doc_path = 'output.docx'
+    doc_path = 'huseltiing_maygt.docx'
     doc.save(doc_path)
     return doc_path
 
@@ -526,21 +359,6 @@ def upload_file(request):
     else:
         form = UploadFileForm()
     return render(request, 'fileconverter/upload.html', {'form': form})
-
-@csrf_exempt
-def change_request(request):
-    if request.method == 'POST':
-        form = ChangeRequestFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            doc_path = handle_change_request_file(request.FILES['file'])
-            with open(doc_path, 'rb') as fh:
-                response = HttpResponse(fh.read(),
-                                        content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-                response['Content-Disposition'] = 'inline; filename=' + doc_path
-                return response
-    else:
-        form = ChangeRequestFileForm()
-    return render(request, 'fileconverter/change_request.html', {'form': form})
 
 @csrf_exempt
 def name_request(request):
