@@ -90,14 +90,12 @@ def handle_uploaded_file(f):
     }]
 
     for index, row in enumerate(ws.iter_rows(min_row=3, values_only=True)):
-        # if index >= 2:
-        #     break
         title = doc.add_paragraph('')
         run = title.add_run('Газар зүйн нэрийн хувийн хэрэг')
         run.bold = True
         title.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-        table = doc.add_table(rows=len(row), cols=10)
+        table = doc.add_table(rows=18, cols=10)
         table.style = 'Table Grid'
         table.autofit = False
         total_width_cm = 20  # Example total width for table
@@ -124,7 +122,10 @@ def handle_uploaded_file(f):
                 row_cells[4].text = str(row[5]) if row[5] is not None else ''
                 table.cell(i, 4).merge(table.cell(i, 9))
             elif i == 4:
-                row_cells[4].text = (str(row[12]) if row[12] is not None else '')
+                row_cells[4].text = (str(row[18]) if row[18] is not None else '')
+                table.cell(i, 4).merge(table.cell(i, 9))
+            elif i == 5:
+                row_cells[4].text = (str(row[19]) if row[19] is not None else '')
                 table.cell(i, 4).merge(table.cell(i, 9))
             elif i == 6:
                 longitude1 = "1.Өргөрөг: " + ("" if not row[14] else str(row[14]))
@@ -150,13 +151,14 @@ def handle_uploaded_file(f):
                 table.cell(i, 4).merge(table.cell(i, 6))
                 table.cell(i, 7).merge(table.cell(i, 9))
             elif i == 9:
-                row_cells[4].text = 'Үзүүлэгдээгүй'
-                row_cells[7].text = str(row[9]) if row[9] is not None else ''
+                row_cells[4].text = ''
+                row_cells[7].text = str(row[10]) if row[10] is not None else ''
                 table.cell(i, 4).merge(table.cell(i, 6))
                 table.cell(i, 7).merge(table.cell(i, 9))
             elif i == 10:
                 paragraph = row_cells[4].paragraphs[0]
-                run = paragraph.add_run('Сумын иргэдийн төлөөлөгчдийн ...-хурлаар дэмжигдсэн.')
+                value = str(row[20]) if row[20] is not None else ''
+                run = paragraph.add_run(value)
                 run.font.color.rgb = RGBColor(255, 0, 0)
                 table.cell(i, 4).merge(table.cell(i, 9))
             elif i == 12:
@@ -343,7 +345,7 @@ def handle_change_request_file(f):
 
 
     # Save the Word document to a temporary location
-    doc_path = 'output.docx'
+    doc_path = 'Хувийн хэрэг.docx'
     doc.save(doc_path)
     return doc_path
 
