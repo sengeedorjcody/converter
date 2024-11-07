@@ -325,7 +325,7 @@ def handle_name_request_file(f):
                 row_cells[6].text = coordinate
             elif i == 1:
                 row_cells[6].text = (str(row[3]) if str(row[3]) is not None else "")
-            elif i == 2:
+            elif i == 4:
                 row_cells[6].text = (str(row[5]) if str(row[5]) is not None else "")
             elif i == 5:
                 row_cells[6].text = str(row[18]) if row[18] is not None else ''
