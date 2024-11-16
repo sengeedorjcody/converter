@@ -8,6 +8,7 @@ from docx import Document
 from docx.shared import RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from django.views.decorators.csrf import csrf_exempt
+from docx.shared import Inches
 
 PAGE_WIDTH_INCHES = 8.5
 
@@ -159,6 +160,11 @@ def handle_uploaded_file(f):
                 value = str(row[20]) if row[20] is not None else ''
                 run = paragraph.add_run(value)
                 run.font.color.rgb = RGBColor(255, 0, 0)
+                table.cell(i, 4).merge(table.cell(i, 9))
+            elif i == 13:
+                paragraph = row_cells[4].paragraphs[0]
+                run = paragraph.add_run()
+                run.add_picture('./static/test.jpg', width=Inches(3.0), height=Inches(3.0))
                 table.cell(i, 4).merge(table.cell(i, 9))
             elif i == 12:
                 # row_cells[0].text = str(static_value) if static_value is not None else ''
