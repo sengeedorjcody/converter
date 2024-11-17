@@ -9,8 +9,62 @@ from docx.shared import RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from django.views.decorators.csrf import csrf_exempt
 from docx.shared import Inches
+import os
+from docx.image.exceptions import UnexpectedEndOfFileError
 
 PAGE_WIDTH_INCHES = 8.5
+
+EXPORT_PATHS  = [
+"E:\\5 sum zurag\\bairshil\\Gurvantes\\42",
+"E:\\5 sum zurag\\bairshil\\Gurvantes\\ulamjlalt",
+"E:\\5 sum zurag\\bairshil\\Gurvantes\\bilge\\42",
+"E:\\5 sum zurag\\bairshil\\Gurvantes\\bilge\\уламжлалт",
+"E:\\5 sum zurag\\bairshil\\Gurvantes\\өөрчлөлт",
+"E:\\5 sum zurag\\bairshil\\Gurvantes",
+]
+
+
+IMAGE_PATHS = [ 
+    # 'E:\\5 sum zurag\\photos\\bayndalai',
+    # 'E:\\5 sum zurag\\photos\\Bulgan',
+    # 'E:\\5 sum zurag\\photos\\Noyn',
+    # 'E:\\5 sum zurag\\photos\\Sevrei',
+    'E:\\5 sum zurag\\photos\\Gurvantes',
+]
+
+def find_image_path(name):
+    image_name = "%s.jpg" % name
+    for i in IMAGE_PATHS:
+        image_path = os.path.join(i, image_name)
+        if os.path.exists(image_path):
+            return image_path
+        words = name.split()  # Split the string into a list of words
+        words = words[:-1]  # Remove the last word by slicing
+        words = ' '.join(words)
+        if words == "":
+            continue  
+        image_name = "%s.jpg" % words
+        image_path = os.path.join(i, image_name)
+        if os.path.exists(image_path):
+            return image_path
+        words = words.split()  # Split the string into a list of words
+        words = words[:-1]  # Remove the last word by slicing
+        words = ' '.join(words)  # Join the remaining words back into a string
+        if words == "":
+            continue
+        image_name = "%s.jpg" % words
+        image_path = os.path.join(i, image_name)
+        if os.path.exists(image_path):
+            return image_path
+    return False
+
+def find_export_image_path(name, index):
+    image_name = "%s %s.jpg" % (name, index)
+    for i in EXPORT_PATHS:
+        image_path = os.path.join(i, image_name)
+        if os.path.exists(image_path):
+            return image_path
+    return False
 
 def handle_uploaded_file(f):
     wb = openpyxl.load_workbook(f)
@@ -102,12 +156,25 @@ def handle_uploaded_file(f):
         total_width_cm = 20  # Example total width for table
         table.columns[0].width = Cm(total_width_cm * 0.4)
         for i, static_value in enumerate(static_values):
+            image_path = find_image_path(str(row[3]))
+            export_path = find_export_image_path(str(row[3]), str(row[2]))
             row_cells = table.rows[i].cells
             if i != 12:
                 row_cells[0].text = static_value.get("first", "")
                 horizontal = table.cell(i, 0).merge(table.cell(i, 3))
                 if i == 8:
                     horizontal.merge(table.cell(i+1, 3))
+                elif i == 13:
+                    paragraph = row_cells[0].paragraphs[0]
+                    run = paragraph.add_run()
+                    if image_path:
+                        print("image_path found", image_path)
+                        try:
+                            run.add_picture(image_path, width=Inches(3.0), height=Inches(3.0))
+                        except UnexpectedEndOfFileError:
+                            print(f"Error: The image file at {image_path} is corrupted or malformed.")
+                        except Exception as e:
+                            print(f"An error occurred: {e}")
             if i == 0:
                 row_cells[4].text = (str(row[3]) if row[3] is not None else '')
                 row_cells[7].text = str(row[4]) if row[4] is not None else ''
@@ -164,7 +231,14 @@ def handle_uploaded_file(f):
             elif i == 13:
                 paragraph = row_cells[4].paragraphs[0]
                 run = paragraph.add_run()
-                run.add_picture('./static/test.jpg', width=Inches(3.0), height=Inches(3.0))
+                if export_path:
+                    print("export_path found", export_path)
+                    try:
+                        run.add_picture(export_path, width=Inches(3.0), height=Inches(3.0))
+                    except UnexpectedEndOfFileError:
+                        print(f"Error: The export image file at {export_path} is corrupted or malformed.")
+                    except Exception as e:
+                        print(f"An error occurred: {e}")
                 table.cell(i, 4).merge(table.cell(i, 9))
             elif i == 12:
                 # row_cells[0].text = str(static_value) if static_value is not None else ''
