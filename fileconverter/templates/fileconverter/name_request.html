@@ -1,9 +1,501 @@
 {% extends 'base.html' %} {% block content %}
-<h1 class="text-center">
-  Газар зүйн нэрийг шинээр өгөх хүсэлтийн маягт /өргөдөл/
-</h1>
-<form method="post" enctype="multipart/form-data" class="mt-4">
-  {% csrf_token %} {{ form.as_p }}
-  <button type="submit" class="btn btn-primary">Convert</button>
-</form>
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500&display=swap");
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2333;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #7d8590;
+    --teal: #39d0c4;
+    --teal-dim: rgba(57, 208, 196, 0.12);
+  }
+
+  body {
+    background: var(--bg);
+    font-family: "Outfit", sans-serif;
+    color: var(--text);
+  }
+
+  .page-wrapper {
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 3rem;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 0 60px rgba(57, 208, 196, 0.05), 0 4px 40px rgba(0, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--teal), transparent);
+  }
+
+  /* Decorative orb */
+  .card::after {
+    content: "";
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(
+      circle,
+      rgba(57, 208, 196, 0.08) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+
+  .icon-badge {
+    width: 48px;
+    height: 48px;
+    background: var(--teal-dim);
+    border: 1px solid rgba(57, 208, 196, 0.25);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.2rem;
+    font-size: 1.4rem;
+  }
+
+  .card-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--teal);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .card-title {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.25;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-desc {
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Form fields */
+  .card p {
+    margin-bottom: 1.1rem;
+  }
+
+  .card label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .card input[type="text"],
+  .card input[type="email"],
+  .card input[type="number"],
+  .card input[type="file"],
+  .card select,
+  .card textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: "Outfit", sans-serif;
+    font-size: 0.88rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    box-sizing: border-box;
+  }
+
+  .card input:focus,
+  .card select:focus,
+  .card textarea:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(57, 208, 196, 0.1);
+  }
+
+  .card input[type="file"] {
+    cursor: pointer;
+    color: var(--muted);
+  }
+
+  .card select option {
+    background: var(--surface);
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 0.9rem;
+    margin-top: 0.5rem;
+    background: var(--teal);
+    color: #0d1117;
+    border: none;
+    border-radius: 8px;
+    font-family: "Outfit", sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 0 20px rgba(57, 208, 196, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .submit-btn:hover {
+    opacity: 0.9;
+    box-shadow: 0 0 30px rgba(57, 208, 196, 0.35);
+  }
+
+  .submit-btn:active {
+    transform: scale(0.99);
+  }
+
+  .btn-arrow {
+    display: inline-block;
+    transition: transform 0.2s;
+  }
+
+  .submit-btn:hover .btn-arrow {
+    transform: translateX(4px);
+  }
+
+  /* ── LOADING OVERLAY ── */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(13, 17, 23, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .loading-overlay.active {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .loading-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.8rem 3.2rem;
+    text-align: center;
+    box-shadow: 0 0 80px rgba(57, 208, 196, 0.08),
+      0 24px 80px rgba(0, 0, 0, 0.5);
+    min-width: 320px;
+    position: relative;
+    overflow: hidden;
+    animation: popIn 0.4s cubic-bezier(0.22, 0.68, 0, 1.2);
+  }
+
+  .loading-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--teal), transparent);
+    animation: scanline 2s ease-in-out infinite;
+  }
+
+  @keyframes scanline {
+    0%,
+    100% {
+      opacity: 0.4;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes popIn {
+    from {
+      opacity: 0;
+      transform: scale(0.88) translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  /* Globe spinner */
+  .globe-spinner {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1.6rem;
+    position: relative;
+  }
+
+  .globe-spinner .ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid transparent;
+  }
+
+  .globe-spinner .ring-1 {
+    border-top-color: var(--teal);
+    animation: spin 1s linear infinite;
+  }
+
+  .globe-spinner .ring-2 {
+    inset: 8px;
+    border-right-color: rgba(57, 208, 196, 0.5);
+    animation: spin 1.4s linear infinite reverse;
+  }
+
+  .globe-spinner .ring-3 {
+    inset: 18px;
+    border-bottom-color: rgba(57, 208, 196, 0.25);
+    animation: spin 2s linear infinite;
+  }
+
+  .globe-spinner .dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: var(--teal);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--teal);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.4);
+      opacity: 0.6;
+    }
+  }
+
+  .loading-title {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+
+  .loading-subtitle {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 1.6rem;
+  }
+
+  /* Timer */
+  .timer-wrap {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.8rem 1.5rem;
+    display: inline-block;
+    margin-bottom: 1.4rem;
+  }
+
+  .timer-display {
+    font-size: 2.2rem;
+    font-weight: 300;
+    color: var(--teal);
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 20px rgba(57, 208, 196, 0.4);
+    line-height: 1;
+  }
+
+  .timer-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.25rem;
+  }
+
+  /* Animated dots */
+  .dots span {
+    animation: blink 1.2s ease-in-out infinite;
+  }
+  .dots span:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  .dots span:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes blink {
+    0%,
+    80%,
+    100% {
+      opacity: 0.2;
+    }
+    40% {
+      opacity: 1;
+    }
+  }
+
+  /* Progress bar */
+  .progress-track {
+    width: 100%;
+    height: 2px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--teal);
+    border-radius: 999px;
+    box-shadow: 0 0 8px var(--teal);
+    animation: indeterminate 2s ease-in-out infinite;
+  }
+
+  @keyframes indeterminate {
+    0% {
+      width: 0%;
+      margin-left: 0%;
+    }
+    50% {
+      width: 55%;
+      margin-left: 22%;
+    }
+    100% {
+      width: 0%;
+      margin-left: 100%;
+    }
+  }
+</style>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-card">
+    <div class="globe-spinner">
+      <div class="ring ring-1"></div>
+      <div class="ring ring-2"></div>
+      <div class="ring ring-3"></div>
+      <div class="dot"></div>
+    </div>
+
+    <div class="loading-title">
+      Боловсруулж байна<span class="dots"
+        ><span>.</span><span>.</span><span>.</span></span
+      >
+    </div>
+    <div class="loading-subtitle">Маягтыг хөрвүүлж байна, түр хүлээнэ үү</div>
+
+    <div class="timer-wrap">
+      <div class="timer-display" id="timerDisplay">00:00</div>
+      <div class="timer-label">өнгөрсөн хугацаа</div>
+    </div>
+
+    <div class="progress-track">
+      <div class="progress-fill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Page -->
+<div class="page-wrapper">
+  <div class="card">
+    <div class="icon-badge">🗺️</div>
+    <div class="card-label">Өргөдлийн маягт</div>
+    <h1 class="card-title">Газар зүйн нэрийг<br />шинээр өгөх хүсэлт</h1>
+    <p class="card-desc">
+      Газар зүйн нэр өгөх болон өөрчлөх хүсэлтийн маягтыг бөглөн илгээнэ үү.
+    </p>
+
+    <form method="post" enctype="multipart/form-data" id="geoForm">
+      {% csrf_token %} {{ form.as_p }}
+      <button type="submit" class="submit-btn">
+        Илгээх <span class="btn-arrow">→</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById("geoForm");
+  const overlay = document.getElementById("loadingOverlay");
+  const timerEl = document.getElementById("timerDisplay");
+  let timerInterval;
+
+  function startTimer() {
+    const start = Date.now();
+    timerInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - start) / 1000);
+      const m = String(Math.floor(elapsed / 60)).padStart(2, "0");
+      const s = String(elapsed % 60).padStart(2, "0");
+      timerEl.textContent = `${m}:${s}`;
+    }, 1000);
+  }
+
+  form.addEventListener("submit", () => {
+    overlay.classList.add("active");
+    startTimer();
+  });
+</script>
+
 {% endblock %}

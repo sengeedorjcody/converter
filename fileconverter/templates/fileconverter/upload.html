@@ -1,7 +1,438 @@
 {% extends 'base.html' %} {% block content %}
-<h1 class="text-center">Нэрийн жагсаалтийг хувийн хэрэг болгох</h1>
-<form method="post" enctype="multipart/form-data" class="mt-4">
-  {% csrf_token %} {{ form.as_p }}
-  <button type="submit" class="btn btn-primary">Convert</button>
-</form>
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap");
+
+  :root {
+    --ink: #1a1a2e;
+    --gold: #c9a84c;
+    --cream: #faf7f0;
+    --muted: #8a8a9a;
+    --card-bg: #ffffff;
+    --border: #e8e4db;
+  }
+
+  body {
+    background: var(--cream);
+    font-family: "DM Sans", sans-serif;
+  }
+
+  .page-wrapper {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 3rem;
+    width: 100%;
+    max-width: 560px;
+    box-shadow: 0 2px 40px rgba(0, 0, 0, 0.06);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), #e8c96e, var(--gold));
+  }
+
+  .card-label {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-title {
+    font-family: "Playfair Display", serif;
+    font-size: 1.9rem;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-bottom: 0.4rem;
+  }
+
+  .card-desc {
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1.5rem;
+  }
+
+  .card p {
+    margin-bottom: 1.2rem;
+  }
+
+  .card label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .card input[type="text"],
+  .card input[type="email"],
+  .card input[type="file"],
+  .card select,
+  .card textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.9rem;
+    color: var(--ink);
+    background: var(--cream);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    box-sizing: border-box;
+  }
+
+  .card input:focus,
+  .card select:focus,
+  .card textarea:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12);
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 0.9rem;
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: 2px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .submit-btn:hover {
+    background: #2d2d4e;
+  }
+  .submit-btn:active {
+    transform: scale(0.99);
+  }
+
+  /* ── OVERLAY ── */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 26, 46, 0.55);
+    backdrop-filter: blur(6px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+  }
+  .loading-overlay.active {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .loading-card {
+    background: #fff;
+    border-radius: 4px;
+    padding: 2.5rem 3rem;
+    text-align: center;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.2);
+    min-width: 300px;
+    position: relative;
+    animation: slideUp 0.35s cubic-bezier(0.22, 0.68, 0, 1.2);
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(24px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .loading-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), #e8c96e, var(--gold));
+    background-size: 200% 100%;
+    animation: shimmer 1.8s linear infinite;
+  }
+
+  .loading-card.done::before {
+    background: #4caf50;
+    animation: none;
+  }
+
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  /* Spinner */
+  .spinner-ring {
+    width: 54px;
+    height: 54px;
+    border: 3px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+    margin: 0 auto 1.5rem;
+    transition: opacity 0.3s;
+  }
+  .loading-card.done .spinner-ring {
+    display: none;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Success icon */
+  .success-icon {
+    display: none;
+    width: 54px;
+    height: 54px;
+    background: #e8f5e9;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    margin: 0 auto 1.2rem;
+  }
+  .loading-card.done .success-icon {
+    display: flex;
+  }
+
+  .loading-title {
+    font-family: "Playfair Display", serif;
+    font-size: 1.2rem;
+    color: var(--ink);
+    margin-bottom: 0.3rem;
+  }
+  .loading-card.done .loading-title {
+    color: #2e7d32;
+  }
+
+  .loading-subtitle {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 1.2rem;
+  }
+  .loading-card.done .loading-subtitle {
+    display: none;
+  }
+
+  .timer-display {
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--ink);
+    letter-spacing: 0.05em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .timer-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.2rem;
+  }
+
+  .progress-bar-wrap {
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    border-radius: 999px;
+    margin-top: 1.4rem;
+    overflow: hidden;
+  }
+  .loading-card.done .progress-bar-wrap {
+    display: none;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 999px;
+    animation: indeterminate 1.8s ease-in-out infinite;
+  }
+
+  @keyframes indeterminate {
+    0% {
+      width: 0%;
+      margin-left: 0%;
+    }
+    50% {
+      width: 60%;
+      margin-left: 20%;
+    }
+    100% {
+      width: 0%;
+      margin-left: 100%;
+    }
+  }
+
+  .close-btn {
+    display: none;
+    margin-top: 1.2rem;
+    padding: 0.6rem 2rem;
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: 2px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .close-btn:hover {
+    background: #2d2d4e;
+  }
+  .loading-card.done .close-btn {
+    display: inline-block;
+  }
+</style>
+
+<!-- Hidden iframe — form submits into this, so page never navigates away -->
+<iframe
+  name="download_frame"
+  id="download_frame"
+  style="display: none"
+></iframe>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-card" id="loadingCard">
+    <div class="spinner-ring"></div>
+    <div class="success-icon">✓</div>
+
+    <div class="loading-title" id="loadingTitle">Хөрвүүлж байна...</div>
+    <div class="loading-subtitle">Файлыг боловсруулж байна, түр хүлээнэ үү</div>
+
+    <div class="timer-display" id="timerDisplay">00:00</div>
+    <div class="timer-label">өнгөрсөн хугацаа</div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill"></div>
+    </div>
+
+    <button class="close-btn" onclick="hideOverlay()">Хаах</button>
+  </div>
+</div>
+
+<!-- Page -->
+<div class="page-wrapper">
+  <div class="card">
+    <div class="card-label">Баримт бичиг</div>
+    <h1 class="card-title">Нэрийн жагсаалтийг<br />хувийн хэрэг болгох</h1>
+    <p class="card-desc">Файлаа оруулж, автоматаар хувийн хэрэг болгоно уу.</p>
+
+    <!-- target="download_frame" sends response to iframe, not current page -->
+    <form
+      method="post"
+      enctype="multipart/form-data"
+      id="convertForm"
+      target="download_frame"
+    >
+      {% csrf_token %} {{ form.as_p }}
+      <button type="submit" class="submit-btn">Хөрвүүлэх →</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById("convertForm");
+  const overlay = document.getElementById("loadingOverlay");
+  const card = document.getElementById("loadingCard");
+  const timerEl = document.getElementById("timerDisplay");
+  const titleEl = document.getElementById("loadingTitle");
+  const iframe = document.getElementById("download_frame");
+
+  let timerInterval = null;
+
+  function startTimer() {
+    const start = Date.now();
+    timerInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - start) / 1000);
+      const m = String(Math.floor(elapsed / 60)).padStart(2, "0");
+      const s = String(elapsed % 60).padStart(2, "0");
+      timerEl.textContent = `${m}:${s}`;
+    }, 1000);
+  }
+
+  function showSuccess() {
+    clearInterval(timerInterval);
+    card.classList.add("done");
+    titleEl.textContent = "Амжилттай татагдлаа!";
+  }
+
+  function hideOverlay() {
+    overlay.classList.remove("active");
+    // Reset for next use
+    setTimeout(() => {
+      card.classList.remove("done");
+      titleEl.textContent = "Хөрвүүлж байна...";
+      timerEl.textContent = "00:00";
+    }, 300);
+  }
+
+  // When the iframe loads, the server has responded = download complete
+  iframe.addEventListener("load", function () {
+    // Only trigger if overlay is active (ignore initial empty load)
+    if (overlay.classList.contains("active")) {
+      showSuccess();
+    }
+  });
+
+  form.addEventListener("submit", function () {
+    overlay.classList.add("active");
+    startTimer();
+  });
+</script>
+
 {% endblock %}
