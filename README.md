@@ -6,13 +6,6 @@ Excel файлаас Word (.docx) баримт бичиг үүсгэх Django в
 
 ## ⚙️ Суулгах заавар
 
-### 1. Repository татах
-
-```bash
-git clone https://github.com/your-username/converter.git
-cd converter
-```
-
 ### 2. Virtual environment үүсгэх
 
 **macOS / Linux:**
