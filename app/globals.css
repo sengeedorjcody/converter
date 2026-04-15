@@ -22,9 +22,21 @@ nav {
 nav .brand {
   color: #fff;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.95rem;
   text-decoration: none;
   margin-right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+nav .nav-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 50%;
+  padding: 2px;
 }
 
 nav a {
@@ -190,6 +202,30 @@ nav a.active {
   margin-top: 28px;
   border-top: 1px solid #eee;
   padding-top: 20px;
+}
+
+.btn-secondary {
+  background: #f0f4fa;
+  color: #1a56a0;
+  border: 1px solid #c5d5ea;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  width: 100%;
+  justify-content: center;
+  margin-top: 10px;
+  box-sizing: border-box;
+}
+
+.btn-secondary:hover {
+  background: #dce9f7;
 }
 
 .info-box h3 {
