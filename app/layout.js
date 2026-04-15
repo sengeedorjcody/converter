@@ -1,8 +1,9 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Газар зүйн нэрийн хөрвүүлэгч',
+  title: 'Инженер Геодези ХХК',
   description: 'Excel файлаас Word баримт үүсгэх',
+  icons: { icon: '/logo.png' },
 };
 
 export default function RootLayout({ children }) {
@@ -19,7 +20,10 @@ export default function RootLayout({ children }) {
 function NavBar() {
   return (
     <nav>
-      <a href="/" className="brand">ГЗН Хөрвүүлэгч</a>
+      <a href="/" className="brand">
+        <img src="/logo.png" alt="Инженер Геодези ХХК" className="nav-logo" />
+        <span>Инженер Геодези ХХК</span>
+      </a>
       <a href="/">Хувийн хэрэг</a>
       <a href="/name-request">Хүсэлтийн маягт</a>
     </nav>

@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 
 export default function HuviinHeregPage() {
   const [file, setFile] = useState(null);
-  const [status, setStatus] = useState(null); // null | 'loading' | 'success' | 'error'
+  const [status, setStatus] = useState(null);
   const [message, setMessage] = useState('');
   const [dragover, setDragover] = useState(false);
   const inputRef = useRef(null);
@@ -48,7 +48,7 @@ export default function HuviinHeregPage() {
       setMessage('Хувийн хэрэг амжилттай үүслээ.');
     } catch (err) {
       setStatus('error');
-      setMessage('Алдаа: ' + err.message);
+      setMessage(err.message);
     }
   }
 
@@ -60,6 +60,10 @@ export default function HuviinHeregPage() {
           Excel файл оруулна уу — хувийн хэрэгний Word баримт татагдана.
         </p>
 
+        <a href="/api/template/huviin-hereg" className="btn btn-secondary">
+          ⬇ Excel загвар татах
+        </a>
+
         <div
           className={`drop-zone${dragover ? ' dragover' : ''}`}
           onClick={() => inputRef.current?.click()}
@@ -70,6 +74,7 @@ export default function HuviinHeregPage() {
             setDragover(false);
             handleFile(e.dataTransfer.files[0]);
           }}
+          style={{ marginTop: 16 }}
         >
           <input
             ref={inputRef}
@@ -91,13 +96,12 @@ export default function HuviinHeregPage() {
           {status === 'loading' ? (
             <><span className="spinner" /> Боловсруулж байна...</>
           ) : (
-            '⬇ Word баримт татах'
+            '⬇ Word баримт үүсгэх'
           )}
         </button>
 
-        {status && (
+        {status && status !== 'loading' && (
           <div className={`status ${status}`}>
-            {status === 'loading' && <span className="spinner" />}
             {status === 'success' && '✓ '}
             {status === 'error' && '✕ '}
             {message}
@@ -105,18 +109,14 @@ export default function HuviinHeregPage() {
         )}
 
         <div className="info-box">
-          <h3>Excel файлын баганын дараалал</h3>
+          <h3>Шаардлагатай баганууд (*)</h3>
           <ul>
-            <li>B (2): Дахин давтагдашгүй дугаар</li>
-            <li>C (3): Нэрийн зургийн индекс</li>
-            <li>D (4): Газар зүйн нэр</li>
-            <li>E (5): Төрөл</li>
-            <li>F (6): Дэвсгэр нэр / Ангилал</li>
-            <li>J (10): Байр зүйн зургийн нэрлэвэр</li>
-            <li>O (15): Өргөрөг 1, P (16): Уртраг 1</li>
-            <li>Q (17): Өргөрөг 2, R (18): Уртраг 2</li>
-            <li>S (19): Аймаг/сум/баг, T (20): Байрлал</li>
-            <li>U (21): Актын дугаар</li>
+            <li>B: Дахин давтагдашгүй дугаар</li>
+            <li>C: Нэрийн зургийн индекс</li>
+            <li>D: Газар зүйн нэр</li>
+            <li>E: Төрөл</li>
+            <li>O: Өргөрөг 1 &nbsp; P: Уртраг 1</li>
+            <li>S: Аймаг/сум/баг</li>
           </ul>
         </div>
       </div>
