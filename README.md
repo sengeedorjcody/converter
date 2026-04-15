@@ -1,43 +1,75 @@
-# 📄 Газар зүйн нэрийн файл хөрвүүлэгч
+# Газар зүйн нэрийн файл хөрвүүлэгч
 
-Excel файлаас Word (.docx) баримт бичиг үүсгэх Django вэб аппликейшн.
+Excel файлаас Word (.docx) баримт бичиг үүсгэх вэб аппликейшн.
+
+Хоёр хувилбартай:
+- **Next.js** — шинэ хувилбар, Vercel-д deploy хийнэ
+- **Django (Python)** — хуучин хувилбар, локал орчинд ажиллана
 
 ---
 
-## ⚙️ Суулгах заавар
+## Next.js хувилбар
 
-### 2. Virtual environment үүсгэх
-
-**macOS / Linux:**
+### Суулгах
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+npm install
 ```
 
-**Windows:**
+### Локал дээр ажиллуулах
 
 ```bash
+npm run dev
+```
+
+Браузерт нээх: [http://localhost:3000](http://localhost:3000)
+
+### Production build
+
+```bash
+npm run build
+npm run start
+```
+
+### Vercel-д deploy хийх
+
+```bash
+git add -A
+git commit -m "deploy"
+git push
+```
+
+Vercel дээр repository холбосон бол push хийхэд автоматаар deploy болно.
+
+### Алдаа гарвал
+
+```bash
+rm -rf .next && npm run dev
+```
+
+---
+
+## Django (Python) хувилбар
+
+### Virtual environment үүсгэх
+
+```bash
+# macOS / Linux
+python3 -m venv venv
+source venv/bin/activate
+
+# Windows
 python -m venv venv
 venv\Scripts\activate
 ```
 
-> ✅ Амжилттай идэвхжсэн бол терминал дээр `(venv)` гарч ирнэ.
-
-### 3. Хамаарлуудыг суулгах
+### Хамаарлуудыг суулгах
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Django тохиргоо
-
-```bash
-python manage.py migrate
-python manage.py collectstatic
-```
-
-### 5. Серверийг ажиллуулах
+### Серверийг ажиллуулах
 
 ```bash
 python manage.py runserver
@@ -47,108 +79,67 @@ python manage.py runserver
 
 ---
 
-## 📦 requirements.txt
-
-```
-Django>=4.2
-openpyxl>=3.1.0
-python-docx>=1.1.0
-```
-
----
-
-## 🗂️ Төслийн бүтэц
+## Төслийн бүтэц
 
 ```
 converter/
-├── manage.py
+├── package.json             # Next.js тохиргоо
+├── next.config.mjs
+├── vercel.json
+├── app/
+│   ├── layout.js            # Navigation + layout
+│   ├── page.js              # Хувийн хэрэг хуудас
+│   ├── name-request/
+│   │   └── page.js          # Хүсэлтийн маягт хуудас
+│   └── api/
+│       ├── huviin-hereg/
+│       │   └── route.js     # Excel → Хувийн хэрэг API
+│       └── name-request/
+│           └── route.js     # Excel → Хүсэлтийн маягт API
+├── lib/
+│   ├── huviin-hereg.js      # Word doc үүсгэгч
+│   └── name-request-doc.js  # Word doc үүсгэгч
+├── manage.py                # Django (хуучин хувилбар)
 ├── requirements.txt
-├── README.md
-├── converter/               # Django тохиргоо
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-└── fileconverter/           # Үндсэн апп
-    ├── views.py             # Файл хөрвүүлэх логик
-    ├── forms.py             # Upload форм
-    ├── urls.py
-    └── templates/
-        └── fileconverter/
-            ├── upload.html      # Хувийн хэрэг үүсгэх хуудас
-            └── name_request.html # Газар зүйн нэрийн өргөдөл
+└── fileconverter/           # Django app (хуучин хувилбар)
 ```
 
 ---
 
-## 🔄 Боловсруулалтын урсгал
+## Боловсруулалтын урсгал (Next.js)
 
 ```
 Excel файл (.xlsx)
       ↓
-  Django view
+  Browser → POST /api/...
       ↓
-openpyxl → өгөгдөл унших
+  Next.js API route (сервер)
       ↓
-python-docx → Word үүсгэх
+xlsx → өгөгдөл унших
+      ↓
+docx → Word үүсгэх (Buffer)
       ↓
   .docx татаж авах
 ```
 
 ---
 
-## 📋 Функцүүд
+## Excel файлын баганын дараалал
 
-| URL              | Тайлбар                                |
-| ---------------- | -------------------------------------- |
-| `/upload/`       | Нэрийн жагсаалтийг хувийн хэрэг болгох |
-| `/name-request/` | Газар зүйн нэр өгөх өргөдлийн маягт    |
-
----
-
-## 🛠️ Хөгжүүлэлтийн тохиргоо
-
-### Virtual environment дахин идэвхжүүлэх
-
-```bash
-# macOS / Linux
-source venv/bin/activate
-
-# Windows
-venv\Scripts\activate
-```
-
-### Шинэ package суулгасны дараа хадгалах
-
-```bash
-pip freeze > requirements.txt
-```
-
-### Virtual environment идэвхгүй болгох
-
-```bash
-deactivate
-```
-
----
-
-## 🖼️ Зураг замын тохиргоо
-
-`views.py` дотор `IMAGE_PATHS` болон `EXPORT_PATHS` хувьсагчдыг өөрийн серверийн замд тохируулна:
-
-```python
-IMAGE_PATHS = [
-    'E:\\5 sum zurag\\photos\\Gurvantes',  # Windows
-    # '/home/user/photos/Gurvantes',       # Linux/macOS
-]
-```
-
----
-
-## ❗ Түгээмэл алдаа
-
-| Алдаа                         | Шийдэл                                       |
-| ----------------------------- | -------------------------------------------- |
-| `ModuleNotFoundError: django` | `pip install -r requirements.txt` ажиллуулна |
-| `venv` идэвхгүй               | `source venv/bin/activate` ажиллуулна        |
-| Зураг олдохгүй                | `IMAGE_PATHS` замыг шалгана                  |
-| Port ашиглагдаж байна         | `python manage.py runserver 8001`            |
+| Багана | Индекс | Утга |
+|--------|--------|------|
+| B | 1 | Дахин давтагдашгүй дугаар |
+| C | 2 | Нэрийн зургийн индекс |
+| D | 3 | Газар зүйн нэр |
+| E | 4 | Төрөл |
+| F | 5 | Дэвсгэр нэр / Ангилал |
+| J | 9 | Байр зүйн зургийн нэрлэвэр |
+| K | 10 | 1:100 000 зурагт |
+| N | 13 | Гарал үүсэл |
+| O | 14 | Өргөрөг 1 |
+| P | 15 | Уртраг 1 |
+| Q | 16 | Өргөрөг 2 |
+| R | 17 | Уртраг 2 |
+| S | 18 | Аймаг / сум / баг |
+| T | 19 | Байрлал тайлбар |
+| U | 20 | Актын дугаар |

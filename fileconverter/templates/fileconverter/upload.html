@@ -136,234 +136,36 @@
     transform: scale(0.99);
   }
 
-  /* ── OVERLAY ── */
-  .loading-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(26, 26, 46, 0.55);
-    backdrop-filter: blur(6px);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-  }
-  .loading-overlay.active {
-    display: flex;
-    animation: fadeIn 0.3s ease;
+  /* ── LOADING STATE ── */
+  .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  .loading-card {
-    background: #fff;
-    border-radius: 4px;
-    padding: 2.5rem 3rem;
+  .status-msg {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--muted);
     text-align: center;
-    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.2);
-    min-width: 300px;
-    position: relative;
-    animation: slideUp 0.35s cubic-bezier(0.22, 0.68, 0, 1.2);
+    min-height: 1.2em;
   }
 
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(24px) scale(0.96);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  .loading-card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--gold), #e8c96e, var(--gold));
-    background-size: 200% 100%;
-    animation: shimmer 1.8s linear infinite;
-  }
-
-  .loading-card.done::before {
-    background: #4caf50;
-    animation: none;
-  }
-
-  @keyframes shimmer {
-    from {
-      background-position: 200% 0;
-    }
-    to {
-      background-position: -200% 0;
-    }
-  }
-
-  /* Spinner */
-  .spinner-ring {
-    width: 54px;
-    height: 54px;
-    border: 3px solid var(--border);
-    border-top-color: var(--gold);
-    border-radius: 50%;
-    animation: spin 0.9s linear infinite;
-    margin: 0 auto 1.5rem;
-    transition: opacity 0.3s;
-  }
-  .loading-card.done .spinner-ring {
-    display: none;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  /* Success icon */
-  .success-icon {
-    display: none;
-    width: 54px;
-    height: 54px;
-    background: #e8f5e9;
-    border-radius: 50%;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.6rem;
-    margin: 0 auto 1.2rem;
-  }
-  .loading-card.done .success-icon {
-    display: flex;
-  }
-
-  .loading-title {
-    font-family: "Playfair Display", serif;
-    font-size: 1.2rem;
-    color: var(--ink);
-    margin-bottom: 0.3rem;
-  }
-  .loading-card.done .loading-title {
+  .status-msg.success {
     color: #2e7d32;
+    font-weight: 500;
   }
 
-  .loading-subtitle {
-    font-size: 0.82rem;
-    color: var(--muted);
-    margin-bottom: 1.2rem;
-  }
-  .loading-card.done .loading-subtitle {
-    display: none;
-  }
-
-  .timer-display {
-    font-size: 2rem;
-    font-weight: 300;
-    color: var(--ink);
-    letter-spacing: 0.05em;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .timer-label {
-    font-size: 0.7rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-top: 0.2rem;
-  }
-
-  .progress-bar-wrap {
-    width: 100%;
-    height: 3px;
-    background: var(--border);
-    border-radius: 999px;
-    margin-top: 1.4rem;
-    overflow: hidden;
-  }
-  .loading-card.done .progress-bar-wrap {
-    display: none;
-  }
-
-  .progress-bar-fill {
-    height: 100%;
-    background: var(--gold);
-    border-radius: 999px;
-    animation: indeterminate 1.8s ease-in-out infinite;
-  }
-
-  @keyframes indeterminate {
-    0% {
-      width: 0%;
-      margin-left: 0%;
-    }
-    50% {
-      width: 60%;
-      margin-left: 20%;
-    }
-    100% {
-      width: 0%;
-      margin-left: 100%;
-    }
-  }
-
-  .close-btn {
-    display: none;
-    margin-top: 1.2rem;
-    padding: 0.6rem 2rem;
-    background: var(--ink);
-    color: #fff;
-    border: none;
-    border-radius: 2px;
-    font-family: "DM Sans", sans-serif;
-    font-size: 0.82rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .close-btn:hover {
-    background: #2d2d4e;
-  }
-  .loading-card.done .close-btn {
-    display: inline-block;
+  .status-msg.error {
+    color: #c0392b;
+    background: #fef2f2;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    padding: 10px 14px;
+    white-space: pre-line;
+    text-align: left;
+    line-height: 1.6;
   }
 </style>
-
-<!-- Hidden iframe — form submits into this, so page never navigates away -->
-<iframe
-  name="download_frame"
-  id="download_frame"
-  style="display: none"
-></iframe>
-
-<!-- Loading Overlay -->
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="loading-card" id="loadingCard">
-    <div class="spinner-ring"></div>
-    <div class="success-icon">✓</div>
-
-    <div class="loading-title" id="loadingTitle">Хөрвүүлж байна...</div>
-    <div class="loading-subtitle">Файлыг боловсруулж байна, түр хүлээнэ үү</div>
-
-    <div class="timer-display" id="timerDisplay">00:00</div>
-    <div class="timer-label">өнгөрсөн хугацаа</div>
-
-    <div class="progress-bar-wrap">
-      <div class="progress-bar-fill"></div>
-    </div>
-
-    <button class="close-btn" onclick="hideOverlay()">Хаах</button>
-  </div>
-</div>
 
 <!-- Page -->
 <div class="page-wrapper">
@@ -372,67 +174,67 @@
     <h1 class="card-title">Нэрийн жагсаалтийг<br />хувийн хэрэг болгох</h1>
     <p class="card-desc">Файлаа оруулж, автоматаар хувийн хэрэг болгоно уу.</p>
 
-    <!-- target="download_frame" sends response to iframe, not current page -->
-    <form
-      method="post"
-      enctype="multipart/form-data"
-      id="convertForm"
-      target="download_frame"
-    >
+    <form enctype="multipart/form-data" id="convertForm">
       {% csrf_token %} {{ form.as_p }}
-      <button type="submit" class="submit-btn">Хөрвүүлэх →</button>
+      <button type="submit" class="submit-btn" id="submitBtn">Хөрвүүлэх →</button>
     </form>
+
+    <div class="status-msg" id="statusMsg"></div>
   </div>
 </div>
 
 <script>
   const form = document.getElementById("convertForm");
-  const overlay = document.getElementById("loadingOverlay");
-  const card = document.getElementById("loadingCard");
-  const timerEl = document.getElementById("timerDisplay");
-  const titleEl = document.getElementById("loadingTitle");
-  const iframe = document.getElementById("download_frame");
+  const btn = document.getElementById("submitBtn");
+  const msg = document.getElementById("statusMsg");
 
-  let timerInterval = null;
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-  function startTimer() {
-    const start = Date.now();
-    timerInterval = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - start) / 1000);
-      const m = String(Math.floor(elapsed / 60)).padStart(2, "0");
-      const s = String(elapsed % 60).padStart(2, "0");
-      timerEl.textContent = `${m}:${s}`;
-    }, 1000);
-  }
+    const fileInput = form.querySelector('input[type="file"]');
+    if (!fileInput || !fileInput.files.length) {
+      showMsg("Файл сонгоно уу.", "error");
+      return;
+    }
 
-  function showSuccess() {
-    clearInterval(timerInterval);
-    card.classList.add("done");
-    titleEl.textContent = "Амжилттай татагдлаа!";
-  }
+    btn.disabled = true;
+    btn.textContent = "Боловсруулж байна...";
+    showMsg("", "");
 
-  function hideOverlay() {
-    overlay.classList.remove("active");
-    // Reset for next use
-    setTimeout(() => {
-      card.classList.remove("done");
-      titleEl.textContent = "Хөрвүүлж байна...";
-      timerEl.textContent = "00:00";
-    }, 300);
-  }
+    const formData = new FormData(form);
 
-  // When the iframe loads, the server has responded = download complete
-  iframe.addEventListener("load", function () {
-    // Only trigger if overlay is active (ignore initial empty load)
-    if (overlay.classList.contains("active")) {
-      showSuccess();
+    try {
+      const res = await fetch("", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        // Success — trigger file download
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "Huviin_hereg.docx";
+        a.click();
+        URL.revokeObjectURL(url);
+        showMsg("✓ Амжилттай татагдлаа!", "success");
+      } else {
+        const data = await res.json().catch(() => ({ error: "Серверийн алдаа" }));
+        showMsg(data.error || "Алдаа гарлаа.", "error");
+      }
+    } catch (err) {
+      showMsg("Холболтын алдаа: " + err.message, "error");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Хөрвүүлэх →";
     }
   });
 
-  form.addEventListener("submit", function () {
-    overlay.classList.add("active");
-    startTimer();
-  });
+  function showMsg(text, type) {
+    msg.textContent = text;
+    msg.className = "status-msg" + (type ? " " + type : "");
+  }
 </script>
 
 {% endblock %}

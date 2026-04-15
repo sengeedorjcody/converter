@@ -3,14 +3,52 @@ from .forms import ChangeRequestFileForm
 import openpyxl
 from docx.shared import Cm
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from docx import Document
 from docx.shared import RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from django.views.decorators.csrf import csrf_exempt
 from docx.shared import Inches
 import os
+import logging
 from docx.image.exceptions import UnexpectedEndOfFileError
+
+logger = logging.getLogger(__name__)
+
+# Хувийн хэрэгт шаардлагатай баганын тодорхойлолт
+# index: (нэр, заавал эсэх)
+HUVIIN_HEREG_COLUMNS = {
+    1:  ("Дахин давтагдашгүй дугаар", True),
+    2:  ("Нэрийн зургийн индекс",     True),
+    3:  ("Газар зүйн нэр",            True),
+    4:  ("Төрөл",                     True),
+    5:  ("Дэвсгэр нэр / Ангилал",     False),
+    9:  ("Байр зүйн зургийн нэрлэвэр",False),
+    10: ("1:100 000 зурагт",          False),
+    13: ("Гарал үүсэл",               False),
+    14: ("Өргөрөг 1",                 True),
+    15: ("Уртраг 1",                  True),
+    16: ("Өргөрөг 2",                 False),
+    17: ("Уртраг 2",                  False),
+    18: ("Аймаг/сум/баг",             True),
+    19: ("Байрлал тайлбар",           False),
+    20: ("Актын дугаар",              False),
+}
+
+def validate_row(row, row_num):
+    """Мөрийн баганын утгуудыг шалгаж log хийнэ. True буцаана хэрэв заавал талбарууд бүгд байвал."""
+    ok = True
+    for idx, (name, required) in HUVIIN_HEREG_COLUMNS.items():
+        val = row[idx] if idx < len(row) else None
+        if val is None or str(val).strip() == "":
+            if required:
+                logger.warning("  [Мөр %d] ❌ ЗААВАЛ багана хоосон: col[%d] = '%s'", row_num, idx, name)
+                ok = False
+            else:
+                logger.info("  [Мөр %d]    Хоосон (заавал биш): col[%d] = '%s'", row_num, idx, name)
+        else:
+            logger.info("  [Мөр %d] ✓ col[%d] '%s' = %s", row_num, idx, name, str(val)[:60])
+    return ok
 
 PAGE_WIDTH_INCHES = 8.5
 
@@ -67,8 +105,11 @@ def find_export_image_path(name, index):
     return False
 
 def handle_uploaded_file(f):
+    logger.info("=== handle_uploaded_file эхлэв ===")
     wb = openpyxl.load_workbook(f)
     ws = wb.active
+    logger.info("Excel файл нээгдлээ. Sheet: %s, max_row=%s, max_col=%s",
+                ws.title, ws.max_row, ws.max_column)
     doc = Document()
     static_values = [
     {
@@ -144,7 +185,50 @@ def handle_uploaded_file(f):
         "second": "/2024 оны 05-р сарын 15-ны өдөр/"
     }]
 
-    for index, row in enumerate(ws.iter_rows(min_row=3, values_only=True)):
+    all_rows = list(ws.iter_rows(min_row=3, values_only=True))
+    logger.info("Excel-ийн нийт мөр (header-гүй): %d", len(all_rows))
+
+    # Өгөгдөл эхэлсний дараа анхны хоосон мөр дээр зогсоно
+    # col[3] = Газар зүйн нэр — энэ хоосон бол өгөгдөл дууссан гэж үзнэ
+    data_rows = []
+    for i, row in enumerate(all_rows):
+        name_val = row[3] if len(row) > 3 else None
+        if name_val is None or str(name_val).strip() == "":
+            if data_rows:
+                logger.info("Excel мөр %d — хоосон мөр, боловсруулалт зогслоо.", i + 3)
+                break
+            else:
+                logger.info("Excel мөр %d — өгөгдлийн өмнөх хоосон мөр, алгасав.", i + 3)
+        else:
+            data_rows.append((i + 3, row))  # (excel_row_num, row)
+
+    logger.info("Боловсруулах мөр: %d", len(data_rows))
+
+    if len(data_rows) == 0:
+        raise ValueError("Боловсруулах өгөгдөл олдсонгүй. D баганад (Газар зүйн нэр) утга байхгүй байна.")
+
+    # Validation: заавал талбар дутуу мөрүүдийг цуглуулах
+    errors = []
+    for row_num, row in data_rows:
+        logger.info("--- Excel мөр %d шалгаж байна ---", row_num)
+        for ci, val in enumerate(row):
+            if val is not None and str(val).strip():
+                logger.info("  col[%d] = %s", ci, str(val)[:80])
+        is_valid = validate_row(row, row_num)
+        if not is_valid:
+            missing = [
+                name for idx, (name, req) in HUVIIN_HEREG_COLUMNS.items()
+                if req and (idx >= len(row) or row[idx] is None or str(row[idx]).strip() == "")
+            ]
+            errors.append("Excel мөр %d: %s" % (row_num, ", ".join(missing)))
+
+    if errors:
+        logger.warning("Validation алдаа: %d мөрт дутуу талбар байна", len(errors))
+        raise ValueError("Дараах мөрүүдэд заавал талбар дутуу байна:\n" + "\n".join(errors))
+
+    for row_num, row in data_rows:
+        logger.info("--- Excel мөр %d боловсруулж байна ---", row_num)
+
         title = doc.add_paragraph('')
         run = title.add_run('Газар зүйн нэрийн хувийн хэрэг')
         run.bold = True
@@ -256,6 +340,7 @@ def handle_uploaded_file(f):
     # Save the Word document to a temporary location
     doc_path = 'Huviin_hereg.docx'
     doc.save(doc_path)
+    logger.info("=== Хувийн хэрэг амжилттай хадгалагдлаа: %s ===", doc_path)
     return doc_path
 
 def handle_name_request_file(f):
@@ -430,12 +515,19 @@ def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            doc_path = handle_uploaded_file(request.FILES['file'])
-            with open(doc_path, 'rb') as fh:
-                response = HttpResponse(fh.read(),
-                                        content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-                response['Content-Disposition'] = 'inline; filename=' + doc_path
-                return response
+            try:
+                doc_path = handle_uploaded_file(request.FILES['file'])
+                with open(doc_path, 'rb') as fh:
+                    response = HttpResponse(fh.read(),
+                                            content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+                    response['Content-Disposition'] = 'inline; filename=' + doc_path
+                    return response
+            except ValueError as e:
+                logger.error("Validation алдаа: %s", str(e))
+                return JsonResponse({'error': str(e)}, status=400)
+            except Exception as e:
+                logger.exception("Тодорхойгүй алдаа:")
+                return JsonResponse({'error': 'Серверийн алдаа: ' + str(e)}, status=500)
     else:
         form = UploadFileForm()
     return render(request, 'fileconverter/upload.html', {'form': form})
